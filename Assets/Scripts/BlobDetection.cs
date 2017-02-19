@@ -5,7 +5,7 @@ using UnityEngine;
 
 public class BlobDetection : MonoBehaviour
 {
-    public Texture2D sourceTexture;
+    public Texture2D sourceTexture; // Should be clamped
 
     private Texture2D targetTexture;
 
@@ -13,9 +13,10 @@ public class BlobDetection : MonoBehaviour
     void Start ()
     {
         targetTexture = new Texture2D(sourceTexture.width, sourceTexture.height, TextureFormat.RGB24, false);
-        for (int i = 0; i < targetTexture.width; i++)
+
+        for (int i = 0; i <= targetTexture.width; i++)
         {
-            for (int j = 0; j < targetTexture.height; j++)
+            for (int j = 0; j <= targetTexture.height; j++)
             {
                 targetTexture.SetPixel(i, j, new Color(0, 0, 0));
             }
@@ -36,14 +37,37 @@ public class BlobDetection : MonoBehaviour
     {
         Color gx, gy;
         List<Vector2> points = new List<Vector2>();
-        for (int i = 0; i < sourceTexture.width; i++)
+        for (int i = 0; i <= sourceTexture.width; i++)
         {
-            for (int j = 0; j < sourceTexture.height; j++)
+            for (int j = 0; j <= sourceTexture.height; j++)
             {
-                gx = sourceTexture.GetPixel(i + 1, j) - sourceTexture.GetPixel(i - 1, j);
-                gy = sourceTexture.GetPixel(i, j + 1) - sourceTexture.GetPixel(i, j - 1);
+                if (i - 1 >= 0 && i + 1 <= sourceTexture.width)
+                {
+                    gx = sourceTexture.GetPixel(i + 1, j) - sourceTexture.GetPixel(i - 1, j);
+                }
+                else if (i - 1 < 0)
+                {
+                    gx = sourceTexture.GetPixel(i + 1, j);
+                }
+                else
+                {
+                    gx = sourceTexture.GetPixel(i - 1, j);
+                }
 
-                if (Mathf.Sqrt(gx.r * gx.r + gy.r * gy.r) > 0)
+                if (j - 1 >= 0 && j + 1 <= sourceTexture.height)
+                {
+                    gy = sourceTexture.GetPixel(i, j + 1) - sourceTexture.GetPixel(i, j - 1);
+                }
+                else if (j - 1 < 0)
+                {
+                    gy = sourceTexture.GetPixel(i, j + 1);
+                }
+                else
+                {
+                    gy = sourceTexture.GetPixel(i, j - 1);
+                }
+
+                if (gx.r * gx.r + gy.r * gy.r > 0)
                 {
                     points.Add(new Vector2(i, j));
                 }
